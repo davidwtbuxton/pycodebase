@@ -1,0 +1,5 @@
+tox
+notrequests
+httpretty
+sphinx
+pypandoc
