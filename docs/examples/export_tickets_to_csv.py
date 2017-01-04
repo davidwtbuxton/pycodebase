@@ -57,6 +57,7 @@ def main(project_slug):
     for ticket in project.tickets.values():
         row = vars(ticket)
         row['status'] = ticket.status['name']
+        row['priority'] = ticket.priority['name']
 
         row = encode_dict(row)
 
