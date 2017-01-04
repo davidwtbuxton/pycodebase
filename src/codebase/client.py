@@ -1,5 +1,6 @@
 import ConfigParser
 import logging
+import os
 
 import notrequests
 
@@ -218,7 +219,14 @@ def quote_status_param(value):
 
 
 def new_client_with_secrets_from_filename(cls, filename):
+    """Returns a new instance of codebase.Client. The username / key are read
+    from the filename which must be in INI format. A filename like '~/.secrets'
+    is expanded to the current user's home directory.
+    """
     config = ConfigParser.SafeConfigParser()
+
+    filename = os.path.expanduser(filename)
+
     with open(filename) as fh:
         config.readfp(fh)
 

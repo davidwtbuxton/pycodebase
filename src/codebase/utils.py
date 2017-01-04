@@ -1,6 +1,9 @@
 import datetime
 
 
+ZERO = datetime.timedelta(0)
+
+
 class UTC(datetime.tzinfo):
     """UTC"""
 
