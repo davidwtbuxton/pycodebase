@@ -93,6 +93,32 @@ class Client(object):
         for obj in data:
             yield obj
 
+    def get_project_activity(self, project, raw=True, since=None):
+        """Returns a generator of events for a project.
+
+        This will keep making requests through the entire project history, if
+        the caller consumes the entire generator.
+        """
+        path = '%s/activity' % project
+        params = {}
+
+        if raw:
+            params['raw'] = 'true'
+
+        if since:
+            params['since'] = utils.format_since_dt(since)
+
+        for response in self._api_get_generator(path, params=params):
+            data = response.json()
+
+            # /:project/activity returns an empty list, status 200 when there
+            # are no more events.
+            if not data:
+                break
+
+            for obj in data:
+                yield obj
+
     def get_repositories(self, project):
         """Returns a generator of configured repos for a project."""
         path = '%s/repositories' % (project,)

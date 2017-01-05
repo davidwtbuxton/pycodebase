@@ -44,6 +44,24 @@ def parse_date(value):
         return dt
 
 
+def format_since_dt(value):
+    """Converts a datetime to UTC and returns a string to use with the activity
+    feed's `since` keyword argument.
+    """
+    # Actually the API seems to parse dates too.
+
+    try:
+        value = value.astimezone(utc)
+    except ValueError:
+        # Naive datetime, we assume it is meant for UTC.
+        value = value.replace(tzinfo=utc)
+
+    # '2014-09-26 17:26:47 +0000'
+    result = value.strftime('%Y-%m-%d %H:%M:%S +0000')
+
+    return result
+
+
 def build_create_note_payload(assignee_id=None, category_id=None, content=None,
         milestone_id=None, priority_id=None, private=None, status_id=None,
         summary=None, time_added=None, upload_tokens=None):
