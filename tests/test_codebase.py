@@ -222,6 +222,47 @@ project_user_response = json.dumps(
     ]
 )
 
+project_activity_response = json.dumps(
+    [
+        {
+            u'event': {
+                u'actor_email': u'alice@example.com',
+                u'actor_name': u'Alice A',
+                u'avatar_url': u'https://identity.atechmedia.com/avatar/123/45',
+                u'deleted': False,
+                u'html_text': u'<ul class="changes"><li>Foo</li></ul>',
+                u'html_title': u'<a href=\'/users/123\' class=\'text--link\'>Alice A</a>',
+                u'id': 123456789,
+                u'project_id': 123456,
+                u'raw_properties': {
+                    u'changes': {
+                        u'ticket_type_id': [u'Feature', u'Task'],
+                    },
+                    u'content': u'',
+                    u'criteria': {
+                        u'added': None,
+                      u'changed': None,
+                      u'removed': None,
+                      u'satisfied': None,
+                      u'unsatisfied': None,
+                    },
+                    u'number': 999,
+                    u'project_name': u'Foo',
+                    u'project_permalink': u'foo',
+                    u'source': None,
+                    u'source_ref': None,
+                    u'subject': u'Ticket title.',
+                    u'time_added': u'',
+                    u'verb': None},
+                u'timestamp': u'2017-01-05 16:30:51 UTC',
+                u'title': u'Alice A updated #999 Ticket title.',
+                u'type': u'ticketing_note',
+                u'user_id': 12345,
+            }
+        },
+    ]
+)
+
 
 class ClientTestCase(unittest.TestCase):
     def test_client_properties(self):
@@ -251,6 +292,27 @@ class ClientTestCase(unittest.TestCase):
         result = obj.get_projects()
 
         self.assertIsInstance(result, types.GeneratorType)
+
+    @httpretty.activate
+    def test_get_project_activity_returns_generator_of_activity(self):
+        httpretty.register_uri(
+            httpretty.GET,
+            'https://api3.codebasehq.com/foo/activity',
+            responses=[
+                httpretty.Response(body=project_activity_response, content_type='application/json'),
+                httpretty.Response(body=json.dumps([]), content_type='application/json'),
+            ],
+        )
+
+        obj = codebase.Client(('example/alice', 'secret'))
+        result = obj.get_project_activity('foo')
+
+        self.assertIsInstance(result, types.GeneratorType)
+
+        activities = list(result)
+
+        self.assertEqual(len(activities), 1)
+        self.assertEqual(activities[0]['event']['actor_name'], u'Alice A')
 
     def test_create_new_client_from_secrets_file(self):
         with tempfile.NamedTemporaryFile(delete=False) as fh:
