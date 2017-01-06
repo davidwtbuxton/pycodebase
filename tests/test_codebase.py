@@ -222,7 +222,9 @@ project_user_response = json.dumps(
     ]
 )
 
-project_activity_response = json.dumps(
+# This fixture is used for testing Client.get_activity() and
+# Client.get_project_activity().
+activity_response = json.dumps(
     [
         {
             u'event': {
@@ -269,7 +271,9 @@ class ClientTestCase(unittest.TestCase):
         obj = codebase.Client(('example/alice', 'secret'))
 
         obj.projects
+        obj.get_activity
         obj.get_deployments
+        obj.get_project_activity
         obj.get_projects
         obj.get_repositories
         obj.get_ticket_categories
@@ -299,13 +303,34 @@ class ClientTestCase(unittest.TestCase):
             httpretty.GET,
             'https://api3.codebasehq.com/foo/activity',
             responses=[
-                httpretty.Response(body=project_activity_response, content_type='application/json'),
+                httpretty.Response(body=activity_response, content_type='application/json'),
                 httpretty.Response(body=json.dumps([]), content_type='application/json'),
             ],
         )
 
         obj = codebase.Client(('example/alice', 'secret'))
         result = obj.get_project_activity('foo')
+
+        self.assertIsInstance(result, types.GeneratorType)
+
+        activities = list(result)
+
+        self.assertEqual(len(activities), 1)
+        self.assertEqual(activities[0]['event']['actor_name'], u'Alice A')
+
+    @httpretty.activate
+    def test_get_account_activity_returns_generator_of_activity(self):
+        httpretty.register_uri(
+            httpretty.GET,
+            'https://api3.codebasehq.com/activity',
+            responses=[
+                httpretty.Response(body=activity_response, content_type='application/json'),
+                httpretty.Response(body=json.dumps([]), content_type='application/json'),
+            ],
+        )
+
+        obj = codebase.Client(('example/alice', 'secret'))
+        result = obj.get_activity()
 
         self.assertIsInstance(result, types.GeneratorType)
 

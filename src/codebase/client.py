@@ -67,6 +67,28 @@ class Client(object):
 
                 params['page'] += 1
 
+    def _get_activity(self, path, raw=True, since=None):
+        # This is used for both /activity and /foo/activity APIs.
+
+        params = {}
+
+        if raw:
+            params['raw'] = 'true'
+
+        if since:
+            params['since'] = utils.format_since_dt(since)
+
+        for response in self._api_get_generator(path, params=params):
+            data = response.json()
+
+            # /:project/activity returns an empty list, status 200 when there
+            # are no more events.
+            if not data:
+                break
+
+            for obj in data:
+                yield obj
+
     def get_users(self):
         """Returns a generator of all users for this account."""
         path = 'users'
@@ -74,6 +96,12 @@ class Client(object):
 
         for obj in data:
             yield obj
+
+    def get_activity(self, raw=True, since=None):
+        """Returns a generator of events on the account."""
+        path = 'activity'
+
+        return self._get_activity(path, raw=raw, since=since)
 
     def get_projects(self):
         """Returns a generator of all projects."""
@@ -100,24 +128,8 @@ class Client(object):
         the caller consumes the entire generator.
         """
         path = '%s/activity' % project
-        params = {}
 
-        if raw:
-            params['raw'] = 'true'
-
-        if since:
-            params['since'] = utils.format_since_dt(since)
-
-        for response in self._api_get_generator(path, params=params):
-            data = response.json()
-
-            # /:project/activity returns an empty list, status 200 when there
-            # are no more events.
-            if not data:
-                break
-
-            for obj in data:
-                yield obj
+        return self._get_activity(path, raw=raw, since=since)
 
     def get_repositories(self, project):
         """Returns a generator of configured repos for a project."""

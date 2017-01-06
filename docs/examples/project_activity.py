@@ -19,7 +19,7 @@ def main(project_slug):
     activity = client.get_project_activity(project_slug, since=since)
 
     for idx, obj in enumerate(activity, 1):
-        # Look at `project_activity_response` in tests/test_codebase.py for an
+        # Look at `activity_response` in tests/test_codebase.py for an
         # example of the event resource (when raw=False).
         event = obj['event']
         print idx, event['timestamp'], event['type'], event['title']
