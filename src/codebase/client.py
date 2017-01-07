@@ -154,6 +154,24 @@ class Client(object):
             for obj in data:
                 yield obj
 
+    def create_deployment(self, project, repo, branch, revision, environment, servers):
+        """Creates a new deployment."""
+        path = '%s/%s/deployments' % (project, repo)
+
+        payload = {
+            'deployment': {
+                'branch': branch,
+                'revision': revision,
+                'environment': environment,
+                'servers': servers,
+            },
+        }
+
+        response = self._api_post(path, json=payload)
+        data = response.json()
+
+        return data
+
     def get_tickets(self, project, assignee=None, status=None, category=None,
             type=None, priority=None, milestone=None):
         """Returns a generator of ticket objects.
@@ -178,6 +196,35 @@ class Client(object):
 
             for obj in data:
                 yield obj
+
+    def create_ticket(self, project, assignee_id=None, category_id=None,
+            description=None, milestone_id=None, priority_id=None,
+            reporter_id=None, status_id=None, summary=None, type=None,
+            upload_tokens=None):
+        """Create a new ticket."""
+        # https://support.codebasehq.com/kb/tickets-and-milestones
+
+        path = '%s/tickets' % project
+
+        payload = {
+            'ticket': {
+                'summary': summary,
+                'ticket_type': type,
+                'reporter_id': reported_id,
+                'assignee_id': assignee_id,
+                'category_id': category_id,
+                'priority_id': priority_id,
+                'status_id': status_id,
+                'milestone_id': milestone_id,
+                'upload_tokens': upload_tokens,
+                'description': description,
+            },
+        }
+
+        response = self._api_post(path, json=payload)
+        data = response.json()
+
+        return data
 
     def get_ticket_notes(self, project, ticket_id):
         """Returns a generator of ticket notes."""
@@ -250,11 +297,9 @@ class Client(object):
         for obj in data:
             yield obj
 
-
     @classmethod
     def with_secrets(cls, filename):
         return new_client_with_secrets_from_filename(cls, filename)
-
 
 
 def new_client_with_secrets_from_filename(cls, filename):

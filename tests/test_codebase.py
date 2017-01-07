@@ -271,6 +271,9 @@ class ClientTestCase(unittest.TestCase):
         obj = codebase.Client(('example/alice', 'secret'))
 
         obj.projects
+        obj.create_deployment
+        obj.create_ticket
+        obj.create_ticket_note
         obj.get_activity
         obj.get_deployments
         obj.get_project_activity
