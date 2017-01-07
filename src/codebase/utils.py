@@ -93,3 +93,50 @@ def build_create_note_payload(assignee_id=None, category_id=None, content=None,
         payload['changes'] = changes
 
     return payload
+
+
+def quote_search_value(value):
+    """Returns a status like 'In progress' as '"In progress"'."""
+    value = str(value)
+    value = value.replace("'", '')
+    value = value.replace('"', '')
+    value = u'"%s"' % value
+
+    return value
+
+
+def iterable(value):
+    """True if value is iterable (except for strings)."""
+    if isinstance(value, basestring):
+        return False
+
+    try:
+        iter(value)
+    except TypeError:
+        return False
+    else:
+        return True
+
+
+def build_ticket_search_query(**kwargs):
+    """Returns a string for use in a ticket search query.
+
+    Returns an empty string if there are no query parameters.
+    """
+    params = []
+
+    # Order params, makes testing simpler.
+    for key, value in sorted(kwargs.items()):
+        if value is None:
+            continue
+
+        if not iterable(value):
+            value = [value]
+
+        value = ','.join(quote_search_value(v) for v in value)
+        term = '%s:%s' % (key, value)
+        params.append(term)
+
+    query = ' '.join(params)
+
+    return query

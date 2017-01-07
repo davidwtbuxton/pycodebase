@@ -154,15 +154,24 @@ class Client(object):
             for obj in data:
                 yield obj
 
-    def get_tickets(self, project, status=None):
-        """Returns a list of ticket objects (which have the ticket names)."""
+    def get_tickets(self, project, assignee=None, status=None, category=None,
+            type=None, priority=None, milestone=None):
+        """Returns a generator of ticket objects.
+
+        Search terms can be a string, or a list of strings.
+        """
         path = '%s/tickets' % project
 
-        if status:
-            status = quote_status_param(status)
-            params = {'query': 'status:' + status}
-        else:
-            params = {}
+        query = utils.build_ticket_search_query(
+            assignee=assignee,
+            status=status,
+            category=None,
+            type=type,
+            priority=priority,
+            milestone=milestone,
+        )
+
+        params = {'query': query} if query else {}
 
         for response in self._api_get_generator(path, params=params):
             data = response.json()
@@ -246,14 +255,6 @@ class Client(object):
     def with_secrets(cls, filename):
         return new_client_with_secrets_from_filename(cls, filename)
 
-
-def quote_status_param(value):
-    """Returns a status like 'In progress' as '"In progress"'."""
-    value = value.replace("'", '')
-    value = value.replace('"', '')
-    value = u'"%s"' % value
-
-    return value
 
 
 def new_client_with_secrets_from_filename(cls, filename):
