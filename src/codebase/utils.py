@@ -140,3 +140,18 @@ def build_ticket_search_query(**kwargs):
     query = ' '.join(params)
 
     return query
+
+
+def encode_dict(d, encoding='UTF-8'):
+    """Converts unicode and datetime values to encoded strings."""
+    result = {}
+
+    for k, v in d.items():
+        if isinstance(v, unicode):
+            v = v.encode(encoding)
+        elif isinstance(v, datetime.datetime):
+            v = str(v)
+
+        result[k] = v
+
+    return result

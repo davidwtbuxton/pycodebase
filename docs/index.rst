@@ -9,6 +9,7 @@ Welcome to PyCodebase's documentation!
    :caption: Contents:
 
    client
+   cli
 
 
 Indices and tables
