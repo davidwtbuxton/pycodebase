@@ -40,5 +40,12 @@ You can then create the client, telling it the path of your secrets file.
 From there you can get projects in your account and all the ticket and status information related to those projects.
 
 
+Documentation
+-------------
+
+More [documentation is on Read The Docs][rtd].
+
+
 [codebase]: https://www.codebasehq.com/
 [project]: https://github.com/davidwtbuxton/pycodebase
+[rtd]: http://pycodebase.readthedocs.io/
