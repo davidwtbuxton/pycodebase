@@ -10,7 +10,7 @@ except ImportError:
 
 setup(
     name='PyCodebase',
-    version='0.2',
+    version='0.3',
     description='A client for the Codebase API.',
     long_description=long_description,
     author='David Buxton',
