@@ -15,7 +15,6 @@ The project is `hosted on GitHub`_.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
 
    getting-started
    client

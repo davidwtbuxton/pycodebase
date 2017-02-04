@@ -98,7 +98,13 @@ class Client(object):
             yield obj
 
     def get_activity(self, raw=True, since=None):
-        """Returns a generator of events on the account."""
+        """Returns a generator of events on the account.
+
+        :param raw: show all details
+        :param since: exclude activity before this date
+        :type raw: bool
+        :type since: datetime.datetime
+        """
         path = 'activity'
 
         return self._get_activity(path, raw=raw, since=since)
@@ -114,7 +120,11 @@ class Client(object):
             yield obj
 
     def get_project_users(self, project):
-        """Returns a generator of users assigned to a project."""
+        """Returns a generator of users assigned to a project.
+
+        :param project: permalink for a project
+        :type project: str
+        """
         path = '%s/assignments' % project
         data = self._api_get(path).json()
 
@@ -124,8 +134,12 @@ class Client(object):
     def get_project_activity(self, project, raw=True, since=None):
         """Returns a generator of events for a project.
 
-        This will keep making requests through the entire project history, if
-        the caller consumes the entire generator.
+        :param project: permalink for a project
+        :param raw: show all details
+        :param since: exclude activity before this date
+        :type project: str
+        :type raw: bool
+        :type since: datetime.datetime
         """
         path = '%s/activity' % project
 
@@ -141,6 +155,13 @@ class Client(object):
             yield obj
 
     def get_deployments(self, project, repo):
+        """Returns a generator of deployments recorded for a project.
+
+        :param project: permalink for a project
+        :param repo: permalink for a repository in the project
+        :type project: str
+        :type repo: str
+        """
         path = '%s/%s/deployments' % (project, repo)
 
         for response in self._api_get_generator(path):
@@ -155,7 +176,24 @@ class Client(object):
                 yield obj
 
     def create_deployment(self, project, repo, branch, revision, environment, servers):
-        """Creates a new deployment."""
+        """Creates a new deployment.
+
+        You can create a deployment even if the named repo does not exist, but
+        then the deployment will not appear when listing deployments.
+
+        :param project: permalink for a project
+        :param repo: permalink for a repository in the project
+        :param branch: git branch name
+        :param revision: git revision ID
+        :param environment: a name (e.g. "live" or "staging")
+        :param servers: comma-separated list of server names
+        :type project: str
+        :type repo: str
+        :type branch: str
+        :type revision: str
+        :type evnvironment: str
+        :param servers: str
+        """
         path = '%s/%s/deployments' % (project, repo)
 
         payload = {
@@ -174,9 +212,25 @@ class Client(object):
 
     def get_tickets(self, project, assignee=None, status=None, category=None,
             type=None, priority=None, milestone=None):
-        """Returns a generator of ticket objects.
+        """Get all tickets on a project, or search for tickets.
 
         Search terms can be a string, or a list of strings.
+
+        :param project: permalink for a project
+        :param assignee: search for tickets assigned to a user
+        :param status: ticket status, e.g. "open"
+        :param category: ticket category, e.g. "General"
+        :param type: ticket type, e.g. "Bug"
+        :param priority: ticket priority, e.g. "High"
+        :param milestone: milestone, e.g. "Sprint 3"
+        :type project: str
+        :type assignee: str|list
+        :type status: str|list
+        :type category: str|list
+        :type type: str|list
+        :type priority: str|list
+        :type milestone: str|list
+        :rtype: generator
         """
         path = '%s/tickets' % project
 
@@ -227,7 +281,14 @@ class Client(object):
         return data
 
     def get_ticket_notes(self, project, ticket_id):
-        """Returns a generator of ticket notes."""
+        """Get all notes for a ticket in a project.
+
+        :param project: permalink for a project
+        :param ticket_id: a ticket number
+        :type project: str
+        :type ticket_id: int
+        :rtype: generator
+        """
         # The API returns all notes in a single response. Not paginated.
 
         path = '%s/tickets/%s/notes' % (project, ticket_id)
@@ -266,7 +327,12 @@ class Client(object):
         return data
 
     def get_ticket_statuses(self, project):
-        """Returns a generator of ticket status objects."""
+        """Get all status choices in a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
         path = '%s/tickets/statuses' % project
         data = self._api_get(path).json()
 
@@ -274,7 +340,12 @@ class Client(object):
             yield obj
 
     def get_ticket_categories(self, project):
-        """Returns a generator of ticket category objects."""
+        """Get all ticket category choices in a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
         path = '%s/tickets/categories' % project
         data = self._api_get(path).json()
 
@@ -282,7 +353,12 @@ class Client(object):
             yield obj
 
     def get_ticket_types(self, project):
-        """Returns a generator of ticket type objects."""
+        """Get all ticket types in a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
         path = '%s/tickets/types' % project
         data = self._api_get(path).json()
 
@@ -290,7 +366,12 @@ class Client(object):
             yield obj
 
     def get_ticket_priorities(self, project):
-        """Returns a generator of ticket priority objects."""
+        """Get all ticket priorities in a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
         path = '%s/tickets/priorities' % project
         data = self._api_get(path).json()
 
@@ -299,6 +380,23 @@ class Client(object):
 
     @classmethod
     def with_secrets(cls, filename):
+        """Create a new instance of Client.
+
+        The API username / key are read from a file. A filename like '~/.secrets'
+        is expanded to with a home directory.
+
+        The file must be in INI format, with a section named "api" and
+        properties for "username" and "key" within the section.
+
+        ::
+
+            [api]
+            username = example/alice
+            key = topsecret
+
+        :param filename: path to INI file
+        :type filename: str
+        """
         return new_client_with_secrets_from_filename(cls, filename)
 
 

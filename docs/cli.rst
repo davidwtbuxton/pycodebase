@@ -1,5 +1,5 @@
 =====================
-The Command-line Tool
+The command-line tool
 =====================
 
 Commands
