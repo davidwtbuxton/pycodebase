@@ -90,7 +90,10 @@ class Client(object):
                 yield obj
 
     def get_users(self):
-        """Returns a generator of all users for this account."""
+        """Get all users for this account.
+
+        :rtype: generator
+        """
         path = 'users'
         data = self._api_get(path).json()
 
@@ -98,19 +101,23 @@ class Client(object):
             yield obj
 
     def get_activity(self, raw=True, since=None):
-        """Returns a generator of events on the account.
+        """Get all events on the account.
 
         :param raw: show all details
         :param since: exclude activity before this date
         :type raw: bool
         :type since: datetime.datetime
+        :rtype: generator
         """
         path = 'activity'
 
         return self._get_activity(path, raw=raw, since=since)
 
     def get_projects(self):
-        """Returns a generator of all projects."""
+        """Get all the projects on an account.
+
+        :rtype: generator
+        """
         # The API for projects is not paginated, all projects in one request.
 
         path = 'projects'
@@ -120,10 +127,11 @@ class Client(object):
             yield obj
 
     def get_project_users(self, project):
-        """Returns a generator of users assigned to a project.
+        """Get the users assigned to a project.
 
         :param project: permalink for a project
         :type project: str
+        :rtype: generator
         """
         path = '%s/assignments' % project
         data = self._api_get(path).json()
@@ -132,7 +140,7 @@ class Client(object):
             yield obj
 
     def get_project_activity(self, project, raw=True, since=None):
-        """Returns a generator of events for a project.
+        """Get events for a project.
 
         :param project: permalink for a project
         :param raw: show all details
@@ -140,13 +148,19 @@ class Client(object):
         :type project: str
         :type raw: bool
         :type since: datetime.datetime
+        :rtype: generator
         """
         path = '%s/activity' % project
 
         return self._get_activity(path, raw=raw, since=since)
 
     def get_repositories(self, project):
-        """Returns a generator of configured repos for a project."""
+        """Get the code repositories for a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
         path = '%s/repositories' % (project,)
         response = self._api_get(path)
         data = response.json()
@@ -155,12 +169,13 @@ class Client(object):
             yield obj
 
     def get_deployments(self, project, repo):
-        """Returns a generator of deployments recorded for a project.
+        """Get the deployments recorded for a project.
 
         :param project: permalink for a project
         :param repo: permalink for a repository in the project
         :type project: str
         :type repo: str
+        :rtype: generator
         """
         path = '%s/%s/deployments' % (project, repo)
 
@@ -192,7 +207,7 @@ class Client(object):
         :type branch: str
         :type revision: str
         :type evnvironment: str
-        :param servers: str
+        :type servers: str
         """
         path = '%s/%s/deployments' % (project, repo)
 
@@ -255,8 +270,12 @@ class Client(object):
             description=None, milestone_id=None, priority_id=None,
             reporter_id=None, status_id=None, summary=None, type=None,
             upload_tokens=None):
-        """Create a new ticket."""
-        # https://support.codebasehq.com/kb/tickets-and-milestones
+        """Create a new ticket.
+
+        See the API documentation on `tickets and milestones`_ for details.
+
+        .. _tickets and milestones: https://support.codebasehq.com/kb/tickets-and-milestones
+        """
 
         path = '%s/tickets' % project
 
@@ -303,7 +322,9 @@ class Client(object):
             upload_tokens=None):
         """Create a new note on a ticket in a project.
 
-        https://support.codebasehq.com/kb/tickets-and-milestones/updating-tickets
+        See the API documentation on `updating tickets`_ for details.
+
+        .. _updating tickets: https://support.codebasehq.com/kb/tickets-and-milestones/updating-tickets
         """
         # You can change a ticket's properties by creating a note.
         path = '%s/tickets/%s/notes' % (project, ticket_id)
