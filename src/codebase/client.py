@@ -399,6 +399,66 @@ class Client(object):
         for obj in data:
             yield obj
 
+    def _my_username(self):
+        username, _ = self.auth
+        # Convert 'example/alice' to 'alice'.
+        _, _, username = username.rpartition('/')
+
+        return username
+
+    def get_user_keys(self, username):
+        """Get public SSH keys for a user.
+
+        The username should be the sort version of a Codebase username. If your
+        API username is "example/alice" then the username is "alice".
+
+        :param username: the user's Codebase username
+        :type username: str
+        """
+        path = 'users/%s/public_keys' % username
+        data = self._api_get(path).json()
+
+        for obj in data:
+            yield obj
+
+    def get_my_keys(self):
+        """Get the public SSH keys for the current authenticated user."""
+        username = self._my_username()
+
+        return self.get_user_keys(username)
+
+    def add_user_key(self, username, description, key):
+        """Add a new SSH key for a user.
+
+        See the documentation for `public keys`_ for details of the key format.
+        See :py:meth:`~Client.get_user_keys` for the username format.
+
+        .. _public keys: https://support.codebasehq.com/kb/public-keys
+
+        :param username: the user's Codebase username
+        :param description: a short description for the key
+        :param key: the text of the public SSH key
+        :type username: str
+        :type description: str
+        :type key: str
+        """
+        path = 'users/%s/public_keys' % username
+        payload = {
+            'public_key': {
+                'description': description,
+                'key': key,
+            },
+        }
+        data = self._api_post(path, json=payload).json()
+
+        return data
+
+    def add_my_key(self, description, key):
+        """Add a new SSH key for the current authenticated user."""
+        username = self._my_username()
+
+        return self.add_user_key(username, description, key)
+
     @classmethod
     def with_secrets(cls, filename):
         """Create a new instance of Client.

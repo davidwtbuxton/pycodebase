@@ -266,6 +266,17 @@ activity_response = json.dumps(
 )
 
 
+public_keys_response = json.dumps(
+    [
+        {
+            u'public_key_join': {
+                u'description': u'Regular key',
+                u'key': u'ssh-rsa abc==',
+            },
+        },
+    ]
+)
+
 class ClientTestCase(unittest.TestCase):
     def test_client_properties(self):
         obj = codebase.Client(('example/alice', 'secret'))
@@ -285,6 +296,10 @@ class ClientTestCase(unittest.TestCase):
         obj.get_ticket_statuses
         obj.get_ticket_types
         obj.get_tickets
+        obj.get_user_keys
+        obj.get_my_keys
+        obj.add_user_key
+        obj.add_my_key
 
     @httpretty.activate
     def test_get_projects_returns_generator_of_projects(self):
@@ -701,3 +716,52 @@ class TicketCategoryTestCase(unittest.TestCase):
         categories = list(foo_proj.categories)
 
         self.assertEqual(len(categories), 1)
+
+
+class PublicKeysTestCase(unittest.TestCase):
+    @httpretty.activate
+    def test_get_user_keys(self):
+        httpretty.register_uri(
+            httpretty.GET,
+            'https://api3.codebasehq.com/users/bob/public_keys',
+            body=public_keys_response,
+            content_type='application/json',
+        )
+
+        obj = codebase.Client(('example/alice', 'secret'))
+        result = list(obj.get_user_keys('bob'))
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0],
+            {
+                u'public_key_join': {
+                    u'description': u'Regular key',
+                    u'key': u'ssh-rsa abc==',
+                },
+            },
+        )
+
+    @httpretty.activate
+    def test_get_my_keys(self):
+        httpretty.register_uri(
+            httpretty.GET,
+            'https://api3.codebasehq.com/users/carol/public_keys',
+            body=public_keys_response,
+            content_type='application/json',
+        )
+
+        # The username is derived from the auth username.
+        obj = codebase.Client(('example/carol', 'secret'))
+        result = list(obj.get_my_keys())
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(
+            result[0],
+            {
+                u'public_key_join': {
+                    u'description': u'Regular key',
+                    u'key': u'ssh-rsa abc==',
+                },
+            },
+        )
