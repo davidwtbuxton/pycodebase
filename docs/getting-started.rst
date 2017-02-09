@@ -59,9 +59,9 @@ Get information for all the projects in the account.
     projects = client.get_projects()
 
     for proj in projects:
-        print 'Name', proj['project']['name']
-        print 'ID', proj['project']['project_id']
-        print 'Permalink', proj['project']['permalink']
+        print 'Name', proj['name']
+        print 'ID', proj['project_id']
+        print 'Permalink', proj['permalink']
 
 
 Finding a project's tickets
@@ -74,10 +74,10 @@ To interact with a project you refer to the project using its permalink. If the 
     tickets = client.get_tickets('foo')
 
     for ticket in tickets:
-        print 'Ticket ID', ticket['ticket']['ticket_id']
-        print 'Status', ticket['ticket']['status']['name']
-        print 'Summary', ticket['ticket']['summary']
-        print 'Last updated', ticket['ticket']['updated_at']
+        print 'Ticket ID', ticket['ticket_id']
+        print 'Status', ticket['status']['name']
+        print 'Summary', ticket['summary']
+        print 'Last updated', ticket['updated_at']
 
 
 get_tickets accepts several keyword arguments for searching for tickets::
@@ -101,8 +101,8 @@ Suppose your project has 3 statuses: "New", "In progress" and "Completed". First
     statuses = client.get_ticket_statuses('foo')
 
     for status in statuses:
-        status_name = status['ticketing_status']['name']
-        status_id = status['ticketing_status']['id']
+        status_name = status['name']
+        status_id = status['id']
 
         status_names_and_ids[status_name] = status_id
 

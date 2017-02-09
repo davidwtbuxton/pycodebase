@@ -334,7 +334,7 @@ class ClientTestCase(unittest.TestCase):
         activities = list(result)
 
         self.assertEqual(len(activities), 1)
-        self.assertEqual(activities[0]['event']['actor_name'], u'Alice A')
+        self.assertEqual(activities[0]['actor_name'], u'Alice A')
 
     @httpretty.activate
     def test_get_account_activity_returns_generator_of_activity(self):
@@ -355,7 +355,7 @@ class ClientTestCase(unittest.TestCase):
         activities = list(result)
 
         self.assertEqual(len(activities), 1)
-        self.assertEqual(activities[0]['event']['actor_name'], u'Alice A')
+        self.assertEqual(activities[0]['actor_name'], u'Alice A')
 
     def test_create_new_client_from_secrets_file(self):
         with tempfile.NamedTemporaryFile(delete=False) as fh:
@@ -735,10 +735,8 @@ class PublicKeysTestCase(unittest.TestCase):
         self.assertEqual(
             result[0],
             {
-                u'public_key_join': {
-                    u'description': u'Regular key',
-                    u'key': u'ssh-rsa abc==',
-                },
+                u'description': u'Regular key',
+                u'key': u'ssh-rsa abc==',
             },
         )
 
@@ -759,9 +757,7 @@ class PublicKeysTestCase(unittest.TestCase):
         self.assertEqual(
             result[0],
             {
-                u'public_key_join': {
-                    u'description': u'Regular key',
-                    u'key': u'ssh-rsa abc==',
-                },
+                u'description': u'Regular key',
+                u'key': u'ssh-rsa abc==',
             },
         )

@@ -20,4 +20,4 @@ def activity(client, opts):
 
 
 def _format_activity(record):
-    return record['event']
+    return record

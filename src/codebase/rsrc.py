@@ -81,7 +81,7 @@ class _ProjectController(_ResourceController):
         projects = self._client.get_projects()
 
         for data in projects:
-            proj = Project(_client=self._client, **data['project'])
+            proj = Project(_client=self._client, **data)
             self._items[proj.permalink] = proj
 
 
@@ -91,7 +91,7 @@ class _TicketController(_ResourceController):
         tickets = list(self._client.get_tickets(slug))
 
         for data in tickets:
-            ticket = Ticket(_client=self._client, _project=self._project, **data['ticket'])
+            ticket = Ticket(_client=self._client, _project=self._project, **data)
             self._items[ticket.ticket_id] = ticket
 
 
@@ -105,8 +105,7 @@ class _NoteController(_ResourceController):
         notes = self._client.get_ticket_notes(slug, self._ticket.ticket_id)
 
         for data in notes:
-            kwargs = data['ticket_note']
-            note = Note(**kwargs)
+            note = Note(**data)
             self._items[note.id] = note
 
 
@@ -116,7 +115,7 @@ class _RepositoryController(_ResourceController):
         repos = list(self._client.get_repositories(slug))
 
         for data in repos:
-            kwargs = data['repository']
+            kwargs = dict(data)
             kwargs['_client'] = self._client
             kwargs['_project'] = self._project
             repo = Repository(**kwargs)
@@ -130,7 +129,7 @@ class _DeploymentController(_ResourceController):
         deployments = list(self._client.get_deployments(proj, repo))
 
         for idx, data in enumerate(deployments):
-            kwargs = data['deployment']
+            kwargs = dict(data)
             kwargs['_client'] = self._client
             kwargs['_project'] = self._project
             kwargs['_repository'] = self._repository
@@ -147,8 +146,7 @@ class _StatusController(_ResourceController):
         objects = list(self._client.get_ticket_statuses(proj))
 
         for data in objects:
-            kwargs = data['ticketing_status']
-            obj = Status(**kwargs)
+            obj = Status(**data)
 
             self._items[obj.id] = obj
 
@@ -159,8 +157,7 @@ class _PriorityController(_ResourceController):
         objects = list(self._client.get_ticket_priorities(proj))
 
         for data in objects:
-            kwargs = data['ticketing_priority']
-            obj = Priority(**kwargs)
+            obj = Priority(**data)
 
             self._items[obj.id] = obj
 
@@ -171,8 +168,7 @@ class _TypeController(_ResourceController):
         objects = list(self._client.get_ticket_types(proj))
 
         for data in objects:
-            kwargs = data['ticketing_type']
-            obj = Type(**kwargs)
+            obj = Type(**data)
 
             self._items[obj.id] = obj
 
@@ -183,8 +179,7 @@ class _CategoryController(_ResourceController):
         objects = list(self._client.get_ticket_categories(proj))
 
         for data in objects:
-            kwargs = data['ticketing_category']
-            obj = Category(**kwargs)
+            obj = Category(**data)
 
             self._items[obj.id] = obj
 
@@ -195,8 +190,7 @@ class _UserController(_ResourceController):
         objects = self._client.get_project_users(proj)
 
         for data in objects:
-            kwargs = data['user']
-            obj = User(**kwargs)
+            obj = User(**data)
 
             self._items[obj.id] = obj
 

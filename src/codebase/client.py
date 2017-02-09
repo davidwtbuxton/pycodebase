@@ -87,7 +87,7 @@ class Client(object):
                 break
 
             for obj in data:
-                yield obj
+                yield obj['event']
 
     def get_users(self):
         """Get all users for this account.
@@ -98,7 +98,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['user']
 
     def get_activity(self, raw=True, since=None):
         """Get all events on the account.
@@ -124,7 +124,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['project']
 
     def get_project_users(self, project):
         """Get the users assigned to a project.
@@ -137,7 +137,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['user']
 
     def get_project_activity(self, project, raw=True, since=None):
         """Get events for a project.
@@ -166,7 +166,7 @@ class Client(object):
         data = response.json()
 
         for obj in data:
-            yield obj
+            yield obj['repository']
 
     def get_deployments(self, project, repo):
         """Get the deployments recorded for a project.
@@ -188,7 +188,7 @@ class Client(object):
                 break
 
             for obj in data:
-                yield obj
+                yield obj['deployment']
 
     def create_deployment(self, project, repo, branch, revision, environment, servers):
         """Creates a new deployment.
@@ -264,7 +264,7 @@ class Client(object):
             data = response.json()
 
             for obj in data:
-                yield obj
+                yield obj['ticket']
 
     def create_ticket(self, project, assignee_id=None, category_id=None,
             description=None, milestone_id=None, priority_id=None,
@@ -314,7 +314,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['ticket_note']
 
     def create_ticket_note(self, project, ticket_id, assignee_id=None,
             category_id=None, content=None, milestone_id=None, priority_id=None,
@@ -358,7 +358,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['ticketing_status']
 
     def get_ticket_categories(self, project):
         """Get all ticket category choices in a project.
@@ -371,7 +371,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['ticketing_category']
 
     def get_ticket_types(self, project):
         """Get all ticket types in a project.
@@ -384,7 +384,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['ticketing_type']
 
     def get_ticket_priorities(self, project):
         """Get all ticket priorities in a project.
@@ -397,7 +397,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['ticketing_priority']
 
     def _my_username(self):
         username, _ = self.auth
@@ -419,7 +419,7 @@ class Client(object):
         data = self._api_get(path).json()
 
         for obj in data:
-            yield obj
+            yield obj['public_key_join']
 
     def get_my_keys(self):
         """Get the public SSH keys for the current authenticated user."""
