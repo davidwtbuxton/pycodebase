@@ -19,6 +19,7 @@ The project is `hosted on GitHub`_.
    getting-started
    client
    cli
+   utilities
 
 
 Indices and tables

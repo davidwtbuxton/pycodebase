@@ -177,6 +177,7 @@ class Client(object):
         :type project: str
         :type repo: str
         :type ref: str
+        :rtype: generator
         """
         path = '%s/%s/commits/%s' % (project, repo, ref)
 

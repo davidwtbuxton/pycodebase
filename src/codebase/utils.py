@@ -1,6 +1,8 @@
 import datetime
+import re
 
 
+# Taken from https://docs.python.org/2/library/datetime.html
 ZERO = datetime.timedelta(0)
 
 
@@ -19,33 +21,80 @@ class UTC(datetime.tzinfo):
 utc = UTC()
 
 
+class FixedOffset(datetime.tzinfo):
+    """Fixed offset in minutes east from UTC."""
+
+    def __init__(self, offset, name):
+        self.__offset = datetime.timedelta(minutes=offset)
+        self.__name = name
+
+    def utcoffset(self, dt):
+        return self.__offset
+
+    def tzname(self, dt):
+        return self.__name
+
+    def dst(self, dt):
+        return ZERO
+
+
+
+dt_pattern = re.compile(
+    r'(\d{4})-(\d{2})-(\d{2})T' # 2016-01-02T
+    r'(\d{2}):(\d{2}):(\d{2})' # 03:04:05
+    r'([Z+-])((\d{2}):(\d{2}))?' # Z or +01:00 or -01:00
+)
+
+
 def parse_date(value):
-    """Parses a string and returns a time zone-aware datetime instance.
+    """Parse a string, returning a time zone-aware datetime instance.
 
     If the value is an invalid format the original value is returned.
 
     >>> parse_date('2016-01-02T03:04:05Z')
     datetime.datetime(2016, 1, 2, 3, 4, 5, tzinfo=<codebase.utils.UTC ...>) # doctest: +ELLIPSIS
+    >>> parse_date('2016-01-02T03:04:05')
+    '2016-01-02T03:04:05'
     >>> parse_date('foo')
     'foo'
     >>> parse_date(None)
     >>>
     """
-    # Codebase uses 1 format: 2016-12-14T14:35:20Z
-    dt_format = '%Y-%m-%dT%H:%M:%SZ'
 
-    try:
-        dt = datetime.datetime.strptime(value, dt_format)
-    except (TypeError, ValueError):
+    if not isinstance(value, basestring):
         return value
-    else:
-        dt = dt.replace(tzinfo=utc)
+
+    match = dt_pattern.search(value)
+
+    if match:
+        components = [int(o) for o in match.groups()[:6]]
+        dt = datetime.datetime(*components)
+
+        if match.group(7) == 'Z':
+            tz = utc
+
+        else:
+            # It's a fixed offset like '+11:59'.
+            hours, minutes = int(match.group(9)), int(match.group(10))
+            offset = (hours * 60) + minutes
+
+            if match.group(7) == '-':
+                # It's a negative fixed offset like '-11:59'.
+                offset = offset * -1
+
+            name = match.group(7) + match.group(8)
+            tz = FixedOffset(offset, name)
+
+        dt = dt.replace(tzinfo=tz)
 
         return dt
 
+    else:
+        return value
+
 
 def format_since_dt(value):
-    """Converts a datetime to UTC and returns a string to use with the activity
+    """Convert a datetime to UTC and returns a string to use with the activity
     feed's `since` keyword argument.
     """
     # Actually the API seems to parse dates too.
@@ -65,7 +114,7 @@ def format_since_dt(value):
 def build_create_note_payload(assignee_id=None, category_id=None, content=None,
         milestone_id=None, priority_id=None, private=None, status_id=None,
         summary=None, time_added=None, upload_tokens=None):
-    """Returns a dict to use when creating a ticket note (or for changing a
+    """Return a dict to use when creating a ticket note (or for changing a
     ticket's properties).
     """
     payload = {
@@ -96,7 +145,7 @@ def build_create_note_payload(assignee_id=None, category_id=None, content=None,
 
 
 def quote_search_value(value):
-    """Returns a status like 'In progress' as '"In progress"'."""
+    """Return a status like 'In progress' as '"In progress"'."""
     value = str(value)
     value = value.replace("'", '')
     value = value.replace('"', '')
@@ -143,7 +192,10 @@ def build_ticket_search_query(**kwargs):
 
 
 def encode_dict(d, encoding='UTF-8'):
-    """Converts unicode and datetime values to encoded strings."""
+    """Convert unicode and datetime values in a dictionary to encoded strings.
+
+    Useful for writing rows to an instance of csv.DictWriter.
+    """
     result = {}
 
     for k, v in d.items():
