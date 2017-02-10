@@ -168,6 +168,29 @@ class Client(object):
         for obj in data:
             yield obj['repository']
 
+    def get_commits(self, project, repo, ref):
+        """Get commits in a project's repository for the given reference.
+
+        :param project: permalink for a project
+        :param repo: permalink for a repository in the project
+        :param ref: branch, tag or commit reference
+        :type project: str
+        :type repo: str
+        :type ref: str
+        """
+        path = '%s/%s/commits/%s' % (project, repo, ref)
+
+        for response in self._api_get_generator(path):
+            data = response.json()
+
+            # The API is supposed to 404 when there are no more pages, but
+            # /:project/:repo/commits/:ref returns an empty list, status 200.
+            if not data:
+                break
+
+            for obj in data:
+                yield obj['commit']
+
     def get_deployments(self, project, repo):
         """Get the deployments recorded for a project.
 
