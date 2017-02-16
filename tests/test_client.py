@@ -22,6 +22,7 @@ class ClientTestCase(unittest.TestCase):
         obj.get_activity
         obj.get_commits
         obj.get_deployments
+        obj.get_file_contents
         obj.get_project_activity
         obj.get_projects
         obj.get_repositories
