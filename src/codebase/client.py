@@ -423,6 +423,25 @@ class Client(object):
         for obj in data:
             yield obj['ticketing_priority']
 
+    def get_file_contents(self, project, repo, ref, file_path):
+        """Get a file's content.
+
+        :param project: permalink for a project
+        :param repo: permalink for a repository in the project
+        :param ref: branch, tag or commit reference
+        :param file_path: path of the file
+        :type project: str
+        :type repo: str
+        :type ref: str
+        :type file_path: str
+        :rtype: string
+
+        """
+        path = '%s/%s/blob/%s/%s' % (project, repo, ref, file_path)
+        response = self._api_get(path)
+
+        return response.content
+
     def _my_username(self):
         username, _ = self.auth
         # Convert 'example/alice' to 'alice'.
