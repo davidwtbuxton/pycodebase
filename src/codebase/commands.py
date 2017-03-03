@@ -21,3 +21,14 @@ def activity(client, opts):
 
 def _format_identity(record):
     return record
+
+
+def ticket(client, opts):
+    results = client.get_tickets(opts.project)
+    results = itertools.islice(results, opts.limit)
+
+    cls = formatters.get_formatter(opts.format)
+    columns = ['updated_at', 'ticket_id', 'summary']
+
+    formatter = cls(columns, _format_identity, sys.stdout)
+    formatter(results)

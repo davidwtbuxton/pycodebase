@@ -16,3 +16,13 @@ Usage::
 
     python -m codebase activity <project> [--format=csv|json] [--limit=n]
 
+
+
+Ticket
+------
+
+Usage::
+
+    python -m codebase ticket <project> [--format=csv|json] [--limit=n]
+
+Get tickets for a project, ordered by date modified descending.

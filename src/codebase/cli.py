@@ -23,8 +23,11 @@ def create_parser():
     activity_parser.add_argument('--format', choices=['json', 'csv'], default='csv')
     activity_parser.add_argument('--limit', type=int, default=DEFAULT_LIMIT)
 
-    # ticket_parser = subparsers.add_parser('ticket')
-    # ticket_parser.add_argument('project')
+    ticket_parser = subparsers.add_parser('ticket')
+    ticket_parser.set_defaults(func=commands.ticket)
+    ticket_parser.add_argument('project')
+    ticket_parser.add_argument('--format', choices=['json', 'csv'], default='csv')
+    ticket_parser.add_argument('--limit', type=int, default=DEFAULT_LIMIT)
 
     return parser
 
