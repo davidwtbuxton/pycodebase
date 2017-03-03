@@ -15,9 +15,9 @@ def activity(client, opts):
     cls = formatters.get_formatter(opts.format)
     columns = ['timestamp', 'type', 'title']
 
-    formatter = cls(columns, _format_activity, sys.stdout)
+    formatter = cls(columns, _format_identity, sys.stdout)
     formatter(results)
 
 
-def _format_activity(record):
+def _format_identity(record):
     return record

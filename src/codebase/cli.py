@@ -19,7 +19,7 @@ def create_parser():
 
     activity_parser = subparsers.add_parser('activity')
     activity_parser.set_defaults(func=commands.activity)
-    activity_parser.add_argument('project')
+    activity_parser.add_argument('project', nargs='?')
     activity_parser.add_argument('--format', choices=['json', 'csv'], default='csv')
     activity_parser.add_argument('--limit', type=int, default=DEFAULT_LIMIT)
 
