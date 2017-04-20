@@ -307,7 +307,7 @@ class Client(object):
             'ticket': {
                 'summary': summary,
                 'ticket_type': type,
-                'reporter_id': reported_id,
+                'reporter_id': reporter_id,
                 'assignee_id': assignee_id,
                 'category_id': category_id,
                 'priority_id': priority_id,
