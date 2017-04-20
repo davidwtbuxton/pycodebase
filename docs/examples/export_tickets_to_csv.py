@@ -19,21 +19,7 @@ import datetime
 import sys
 
 import codebase
-
-
-def encode_dict(d, encoding='UTF-8'):
-    """Converts unicode and datetime values to encoded strings."""
-    result = {}
-
-    for k, v in d.items():
-        if isinstance(v, unicode):
-            v = v.encode(encoding)
-        elif isinstance(v, datetime.datetime):
-            v = str(v)
-
-        result[k] = v
-
-    return result
+import codebase.utils
 
 
 def main(project_slug):
@@ -59,7 +45,7 @@ def main(project_slug):
         row['status'] = ticket.status['name']
         row['priority'] = ticket.priority['name']
 
-        row = encode_dict(row)
+        row = codebase.utils.encode_dict(row)
 
         writer.writerow(row)
 
