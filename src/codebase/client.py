@@ -375,7 +375,7 @@ class Client(object):
     def upload_files(self, files):
         """Upload files.
 
-        Each file in the list can one of:
+        Each file in the list can be one of:
 
         * A file-like object open for reading.
         * A pair of (filename, file-like object).
