@@ -22,7 +22,7 @@ class Client(object):
         if not self.base_url.endswith('/'):
             self.base_url += '/'
 
-    def _api_method(self, method, path, params=None, json=None):
+    def _api_method(self, method, path, params=None, json=None, files=None):
         url = self.base_url + path
         headers = {'Accept': 'application/json'}
 
@@ -34,6 +34,7 @@ class Client(object):
             params=params,
             headers=headers,
             json=json,
+            files=files,
             timeout=30,
         )
 
@@ -46,8 +47,8 @@ class Client(object):
 
         return response
 
-    def _api_post(self, path, params=None, json=None):
-        return self._api_method('POST', path, params=params, json=json)
+    def _api_post(self, path, params=None, json=None, files=None):
+        return self._api_method('POST', path, params=params, json=json, files=files)
 
     def _api_get(self, path, params=None):
         return self._api_method('GET', path, params=params)
@@ -370,6 +371,34 @@ class Client(object):
         data = self._api_post(path, json=payload).json()
 
         return data
+
+    def upload_files(self, files):
+        """Upload files.
+
+        Each file in the list can one of:
+
+        * A file-like object open for reading.
+        * A pair of (filename, file-like object).
+        * A pair of (filename, byte-string).
+
+        Returns a generator of upload info dictionaries. The 'identifier' key
+        for an uploaded file can be used in the `upload_tokens` argument when
+        creating a ticket or note.
+
+        :param files: list of files to upload
+        :type files: list
+        :rtype: generator
+        """
+        # https://support.codebasehq.com/kb/uploading-files
+
+        path = 'uploads'
+        field_name = 'files[]'
+        files_data = [(field_name, obj) for obj in files]
+        response = self._api_post(path, files=files_data)
+        data = response.json()
+
+        for obj in data:
+            yield obj['upload']
 
     def get_ticket_statuses(self, project):
         """Get all status choices in a project.

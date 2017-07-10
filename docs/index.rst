@@ -20,6 +20,7 @@ The project is `hosted on GitHub`_.
    client
    cli
    utilities
+   uploading-files
 
 
 Indices and tables
