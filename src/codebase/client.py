@@ -47,6 +47,9 @@ class Client(object):
 
         return response
 
+    def _api_put(self, path, params=None, json=None, files=None):
+        return self._api_method('PUT', path, params=params, json=json, files=files)
+
     def _api_post(self, path, params=None, json=None, files=None):
         return self._api_method('POST', path, params=params, json=json, files=files)
 
@@ -246,6 +249,54 @@ class Client(object):
         }
 
         response = self._api_post(path, json=payload)
+        data = response.json()
+
+        return data
+
+    def get_milestones(self, project):
+        """Get the milestones for a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
+        path = '%s/milestones' % (project,)
+
+        # Seems to be unpaginated.
+        response = self._api_get(path)
+        data = response.json()
+
+        for obj in data:
+            yield obj['ticketing_milestone']
+
+    def create_milestone(self, project, deadline=None, description=None,
+            estimated_time=None, name=None, parent_id=None,
+            responsible_user_id=None, start_at=None, status=None):
+        """Create a new milestone."""
+        path = '%s/milestones' % (project,)
+
+        payload = utils.create_milestone_payload(deadline=deadline,
+            description=description, estimated_time=estimated_time, name=name,
+            parent_id=parent_id, responsible_user_id=responsible_user_id,
+            start_at=start_at, status=status)
+
+        response = self._api_post(path, json=payload)
+        data = response.json()
+
+        return data
+
+    def update_milestone(self, project, milestone_id, deadline=None,
+            description=None, estimated_time=None, name=None, parent_id=None,
+            responsible_user_id=None, start_at=None, status=None):
+        """Update an existing milestone."""
+        path = '%s/milestones/%s' % (project, milestone_id)
+
+        payload = utils.create_milestone_payload(deadline=deadline,
+            description=description, estimated_time=estimated_time, name=name,
+            parent_id=parent_id, responsible_user_id=responsible_user_id,
+            start_at=start_at, status=status)
+
+        response = self._api_put(path, json=payload)
         data = response.json()
 
         return data

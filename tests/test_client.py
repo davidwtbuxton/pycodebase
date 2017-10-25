@@ -17,12 +17,14 @@ class ClientTestCase(unittest.TestCase):
 
         obj.projects
         obj.create_deployment
+        obj.create_milestone
         obj.create_ticket
         obj.create_ticket_note
         obj.get_activity
         obj.get_commits
         obj.get_deployments
         obj.get_file_contents
+        obj.get_milestones
         obj.get_project_activity
         obj.get_projects
         obj.get_repositories
@@ -34,6 +36,7 @@ class ClientTestCase(unittest.TestCase):
         obj.get_tickets
         obj.get_user_keys
         obj.get_my_keys
+        obj.update_milestone
         obj.add_user_key
         obj.add_my_key
 

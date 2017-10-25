@@ -144,6 +144,32 @@ def build_create_note_payload(assignee_id=None, category_id=None, content=None,
     return payload
 
 
+def build_milestone_payload(deadline=None, description=None, estimated_time=None,
+        name=None, parent_id=None, responsible_user_id=None, start_at=None,
+        status=None):
+    # How many of these fields are actually required I don't know.
+
+    if isinstance(start_at, datetime.date):
+        # If they gave us a datetime, chop off the hours, etc.
+        start_at = str(start_at)[:10]
+
+    if isinstance(deadline, datetime.date):
+        deadline = str(deadline)[:10]
+
+    payload = {
+        'deadline': deadline,
+        'description': description,
+        'estimated_time': estimated_time,
+        'name': name,
+        'parent_id': parent_id,
+        'responsible_user_id': responsible_user_id,
+        'start_at': start_at,
+        'status': status,
+    }
+
+    return payload
+
+
 def quote_search_value(value):
     """Return a status like 'In progress' as '"In progress"'."""
     value = str(value)
