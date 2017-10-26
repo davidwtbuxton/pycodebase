@@ -47,6 +47,9 @@ class Client(object):
 
         return response
 
+    def _api_put(self, path, params=None, json=None, files=None):
+        return self._api_method('PUT', path, params=params, json=json, files=files)
+
     def _api_post(self, path, params=None, json=None, files=None):
         return self._api_method('POST', path, params=params, json=json, files=files)
 
@@ -246,6 +249,84 @@ class Client(object):
         }
 
         response = self._api_post(path, json=payload)
+        data = response.json()
+
+        return data
+
+    def get_milestones(self, project):
+        """Get the milestones for a project.
+
+        :param project: permalink for a project
+        :type project: str
+        :rtype: generator
+        """
+        path = '%s/milestones' % (project,)
+
+        # Seems to be unpaginated.
+        response = self._api_get(path)
+        data = response.json()
+
+        for obj in data:
+            yield obj['ticketing_milestone']
+
+    def create_milestone(self, project, name, deadline=None, description=None,
+            estimated_time=None, parent_id=None,
+            responsible_user_id=None, start_at=None, status=None):
+        """Create a new milestone.
+
+        See the API documentation on `milestones`_ for details.
+
+        .. note:: The Codebase API allows multiple milestones to have the same
+            name, and this method does not check for duplicates.
+
+        .. _milestones: https://support.codebasehq.com/kb/tickets-and-milestones/milestones
+
+        :param project: permalink for a project
+        :param name: new milestone's name
+        :param deadline: the date of this milestone's deadline
+        :param description: a long description for the new milestone
+        :param estimated_time: the estimated time for the milestone
+        :param parent_id: the ID of this milestone's parent milestone
+        :param responsible_user_id: the id of the user responsible for the milestone
+        :param start_at: the date this milestone begins
+        :param status: the milestone status. One of "active", "completed" or "cancelled"
+        :type project: str
+        :type name: str
+        :type deadline: str|datetime.date
+        :type description: str
+        :type estimated_time: int
+        :type parent_id: str
+        :type responsible_user_id: str
+        :type start_at: str|datetime.date
+        :type status: str
+        :rtype: dict
+        """
+        path = '%s/milestones' % (project,)
+
+        milestone_data = utils.build_milestone_payload(deadline=deadline,
+            description=description, estimated_time=estimated_time, name=name,
+            parent_id=parent_id, responsible_user_id=responsible_user_id,
+            start_at=start_at, status=status)
+
+        payload = {'ticketing_milestone': milestone_data}
+        response = self._api_post(path, json=payload)
+        data = response.json()
+
+        return data
+
+    def update_milestone(self, project, milestone_id, deadline=None,
+            description=None, estimated_time=None, name=None, parent_id=None,
+            responsible_user_id=None, start_at=None, status=None):
+        """Update an existing milestone."""
+        path = '%s/milestones/%s' % (project, milestone_id)
+
+        milestone_data = utils.build_milestone_payload(deadline=deadline,
+            description=description, estimated_time=estimated_time, name=name,
+            parent_id=parent_id, responsible_user_id=responsible_user_id,
+            start_at=start_at, status=status)
+
+        payload = {'ticketing_milestone': milestone_data}
+        response = self._api_put(path, json=payload)
         data = response.json()
 
         return data

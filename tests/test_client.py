@@ -17,12 +17,14 @@ class ClientTestCase(unittest.TestCase):
 
         obj.projects
         obj.create_deployment
+        obj.create_milestone
         obj.create_ticket
         obj.create_ticket_note
         obj.get_activity
         obj.get_commits
         obj.get_deployments
         obj.get_file_contents
+        obj.get_milestones
         obj.get_project_activity
         obj.get_projects
         obj.get_repositories
@@ -34,6 +36,7 @@ class ClientTestCase(unittest.TestCase):
         obj.get_tickets
         obj.get_user_keys
         obj.get_my_keys
+        obj.update_milestone
         obj.add_user_key
         obj.add_my_key
 
@@ -172,3 +175,39 @@ class CommitsTestCase(unittest.TestCase):
 
         self.assertEqual(len(commits), 1)
         self.assertEqual(commits[0]['committer_name'], u'Alice A')
+
+
+class MilestonesTestCase(unittest.TestCase):
+    @httpretty.activate
+    def test_get_milestones(self):
+        httpretty.register_uri(
+            httpretty.GET,
+            'https://api3.codebasehq.com/foo/milestones',
+            responses=[
+                httpretty.Response(body=fixtures.milestones_response, content_type='application/json'),
+            ],
+        )
+
+        obj = codebase.Client(('example/alice', 'secret'))
+        result = obj.get_milestones(project='foo')
+
+        self.assertIsInstance(result, types.GeneratorType)
+
+        milestones = list(result)
+
+        self.assertEqual(len(milestones), 1)
+        self.assertEqual(
+            milestones[0],
+            {
+                'deadline': None,
+                'description': u'',
+                'estimated_time': 0,
+                'id': 123,
+                'identifier': u'123-4-5-6-uuid',
+                'name': u'Bar milestone',
+                'parent_id': None,
+                'responsible_user_id': 987,
+                'start_at': None,
+                'status': u'active',
+            },
+)
