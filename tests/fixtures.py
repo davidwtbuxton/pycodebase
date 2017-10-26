@@ -290,3 +290,22 @@ public_keys_response = json.dumps(
         },
     ]
 )
+
+milestones_response = json.dumps(
+    [
+        {
+            'ticketing_milestone': {
+                u'deadline': None,
+                u'description': u'',
+                u'estimated_time': 0,
+                u'id': 123,
+                u'identifier': u'123-4-5-6-uuid',
+                u'name': u'Bar milestone',
+                u'parent_id': None,
+                u'responsible_user_id': 987,
+                u'start_at': None,
+                u'status': u'active',
+            },
+        },
+    ]
+)
