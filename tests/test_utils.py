@@ -63,3 +63,33 @@ class ParseDateTestCase(unittest.TestCase):
         result = utils.parse_date(None)
 
         self.assertIsNone(result)
+
+
+class EncodeDictTestCase(unittest.TestCase):
+    def test_encodes_unicode(self):
+        pass
+
+    def test_encodes_datetimes(self):
+        pass
+
+    def test_encodes_data_types(self):
+        data = {
+            'unicode': u'ol\u00e9',
+            'bytes': b'ol\xe9',
+            'none': None,
+            'bool': True,
+            'datetime': datetime.datetime(2016, 1, 2, 3, 4, 5, tzinfo=utils.utc),
+        }
+
+        result = utils.encode_dict(data)
+
+        self.assertEqual(
+            result,
+            {
+                'bool': True,
+                'bytes': b'ol\xe9',
+                'datetime': '2016-01-02 03:04:05+00:00',
+                'none': None,
+                'unicode': 'ol\xc3\xa9',
+            },
+        )

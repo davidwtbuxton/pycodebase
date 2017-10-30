@@ -4,7 +4,6 @@ import os
 
 import notrequests
 
-from . import rsrc
 from . import utils
 
 
@@ -12,10 +11,9 @@ CODEBASE_API_URL = 'https://api3.codebasehq.com'
 logger = logging.getLogger(__file__)
 
 
-class Client(object):
+class _Client(object):
     """Codebase API client class."""
     def __init__(self, (username, key)):
-        self.projects = rsrc._ProjectController(_client=self)
         self.auth = (username, key)
         self.base_url = CODEBASE_API_URL
 
@@ -632,6 +630,100 @@ class Client(object):
         :type filename: str
         """
         return new_client_with_secrets_from_filename(cls, filename)
+
+
+class Client(_Client):
+    """Codebase API client class that allows some ticket properties to be
+    referenced by name instead of the object ID.
+    """
+    def __init__(self, *args, **kwargs):
+        super(Client, self).__init__(*args, **kwargs)
+        self.reset_cache()
+
+    def reset_cache(self):
+        self._cache = {}
+
+    def use_cache(self, project, kwargs):
+        """For some ticket classifiers (what Codebase calls organisational
+        objects, such as status, category, etc.), return a new dict with the
+        classifier's name replaced by the classifier's ID.
+
+        This works by making an API call to get ticket statuses, etc. and
+        caching the results for quick lookup. The cache can be cleared with
+        Client.reset_cache().
+        """
+        # We take an argument like 'category', lookup a value and reassign it
+        # to 'category_id'.
+        classifiers = {
+            'assignee': self.cache_assignee,
+            'category': self.cache_category,
+            'milestone': self.cache_milestone,
+            'priority': self.cache_priority,
+            'status': self.cache_status,
+        }
+
+        # Make a copy of the original, don't mutate the dict we were given.
+        kwargs = dict(kwargs)
+
+        # Could use a defaultdict or something. Anyway, setup project's cache.
+        if project not in self._cache:
+            self._cache[project] = {}
+
+        for name in classifiers:
+            if name in kwargs:
+                # Check if we have cached the results for this classifier. If
+                # not, then call a method like 'Client.cache_category()'
+                # and assign the result to the cache. N.B. The cache is
+                # per-project.
+                if name not in self._cache[project]:
+                    self._cache[project][name] = classifiers[name](project)
+
+                # OK. We've cached this classifier's stuff.
+                value = kwargs[name]
+                value = self._cache[project][name].get(value, value)
+
+                # Now set the '_id' version and unset the original argument.
+                kwargs[name + '_id'] = value
+                del kwargs[name]
+
+        return kwargs
+
+    def cache_assignee(self, project):
+        result = {}
+        users = self.get_project_users(project)
+
+        # We allow an assignee to be specified by the username or any of their
+        # email addresses.
+        for user in users:
+            user_id = user['id']
+            result[user['username']] = user_id
+
+            for email in user['email_addresses']:
+                result[email] = user_id
+
+        return result
+
+    def cache_category(self, project):
+        return {obj['name']: obj['id'] for obj in self.get_ticket_categories(project)}
+
+    def cache_milestone(self, project):
+        return {obj['name']: obj['id'] for obj in self.get_milestones(project)}
+
+    def cache_priority(self, project):
+        return {obj['name']: obj['id'] for obj in self.get_ticket_priorities(project)}
+
+    def cache_status(self, project):
+        return {obj['name']: obj['id'] for obj in self.get_ticket_statuses(project)}
+
+    def create_ticket(self, project, **kwargs):
+        kwargs = self.use_cache(project, kwargs)
+
+        return super(Client, self).create_ticket(project, **kwargs)
+
+    def create_ticket_note(self, project, ticket_id, **kwargs):
+        kwargs = self.use_cache(project, kwargs)
+
+        return super(Client, self).create_ticket_note(project, ticket_id, **kwargs)
 
 
 def new_client_with_secrets_from_filename(cls, filename):

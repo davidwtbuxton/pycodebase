@@ -309,3 +309,18 @@ milestones_response = json.dumps(
         },
     ]
 )
+
+file_uploads_response = json.dumps(
+    [
+        {
+            'upload': {
+                'id': 123456,
+                'identifier': 'c2959f1c',
+                'file_name': 'upload.gif',
+                'content_type': 'image/gif',
+                'file_size': 34353,
+                'url': 'https://account.codebasehq.com/uploads/c2959f1c',
+            },
+        },
+    ]
+)
