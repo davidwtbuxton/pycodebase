@@ -25,7 +25,6 @@ import codebase.utils
 def main(project_slug):
     client = codebase.Client.with_secrets('~/.codebase_secrets.ini')
 
-    project = client.projects[project_slug]
 
     columns = [
         'ticket_id',
@@ -40,10 +39,12 @@ def main(project_slug):
     writer = csv.DictWriter(sys.stdout, columns, extrasaction='ignore')
     writer.writeheader()
 
-    for ticket in project.tickets.values():
-        row = vars(ticket)
-        row['status'] = ticket.status['name']
-        row['priority'] = ticket.priority['name']
+    tickets = client.get_tickets(project_slug)
+
+    for ticket in tickets:
+        row = dict(ticket)
+        row['status'] = ticket['status']['name']
+        row['priority'] = ticket['priority']['name']
 
         row = codebase.utils.encode_dict(row)
 
