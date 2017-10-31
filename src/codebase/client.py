@@ -11,7 +11,7 @@ CODEBASE_API_URL = 'https://api3.codebasehq.com'
 logger = logging.getLogger(__file__)
 
 
-class _Client(object):
+class BaseClient(object):
     """Codebase API client class."""
     def __init__(self, (username, key)):
         self.auth = (username, key)
@@ -632,7 +632,7 @@ class _Client(object):
         return new_client_with_secrets_from_filename(cls, filename)
 
 
-class Client(_Client):
+class Client(BaseClient):
     """Codebase API client class that allows some ticket properties to be
     referenced by name instead of the object ID.
     """
