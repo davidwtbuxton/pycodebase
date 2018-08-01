@@ -39,8 +39,12 @@ def main(project_slug):
     writer = csv.DictWriter(sys.stdout, columns, extrasaction='ignore')
     writer.writeheader()
 
-    for ticket in client.get_tickets(project_slug):
+    for idx, ticket in enumerate(client.get_tickets(project_slug), start=1):
         row = dict(ticket)
+
+        m = '{idx: 4} - {row[ticket_id]} {row[summary]}\n'.format(idx=idx, row=row)
+        sys.stderr.write(m)
+
         row['status'] = ticket['status']['name']
         row['priority'] = ticket['priority']['name']
 
